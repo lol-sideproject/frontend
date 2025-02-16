@@ -1,21 +1,22 @@
 <template>
-    <div class="match-card">
-        <div class="match-info">
+    <div class="match-card" :class="{ victory: matchData.result === '승리', defeat: matchData.result === '패배' }">
+        <div class="match-info"
+            :class="{ victory: matchData.result === '승리', defeat: matchData.result === '패배', mvp: matchData.aiScore >= 80 }">
             <!-- 왼쪽: 게임 정보 -->
-            <div class="left">
+            <div class="left col-1">
                 <p class="match-type">솔로랭크</p>
                 <p class="match-time">6일 전</p>
-                <p class="match-result victory">승리 50:46</p>
+                <p class="match-result victory">{{ matchData.result }} 50:46</p>
                 <p class="rank-tier">Gold 4</p>
             </div>
 
             <!-- 챔피언 정보 -->
-            <div class="champion-info mx-5">
+            <div class="champion-info col-3">
                 <div class="d-flex">
                     <img :src="matchData.championImage" class="champion-icon" />
                     <div class="spells-runes d-flex">
                         <div class="spells">
-                            <img v-for="(spell, index) in matchData.spells" :key="'spell' + index" :src="spell"
+                            <img v-for="(spell, index) in matchData.spells" :key="index" :src="spell"
                                 class="spell-icon d-block" />
                         </div>
                         <div class="runes">
@@ -40,12 +41,12 @@
                 </div>
             </div>
             <!-- AI Score -->
-            <div class="ai-score mx-5">
+            <div class="ai-score col-2">
                 <div class="score-label">AI-Score</div>
                 <div class="score">{{ matchData.aiScore }}</div>
                 <div class="rank">{{ matchData.rank }}등</div>
             </div>
-            <div class="player-list mx-5">
+            <div class="player-list col-4">
                 <ul class="team me-5">
                     <li v-for="(player, index) in matchData.team1" :key="'team1' + index">
                         <img :src="player.championImage" class="player-champion-icon" />
@@ -67,45 +68,12 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { defineProps } from "vue";
 
-const matchData = ref({
-    championImage: "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Kaisa.png",
-    spells: [
-        "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/SummonerFlash.png",
-        "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/SummonerHeal.png"
-    ],
-    runeMain: "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/Electrocute/Electrocute.png",
-    runeSub: "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/Electrocute/Electrocute.png",
-    kills: 19,
-    deaths: 8,
-    assists: 15,
-    kda: (19 + 15) / 8,
-    aiScore: 80,
-    rank: 2,
-    items: [
-        "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3031.png",
-        "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/6672.png",
-        "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3094.png",
-        "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3036.png",
-        "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3006.png",
-        "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3363.png"
-    ],
-    team1: [
-        { name: "프로젝트 모건도", championImage: "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Ahri.png" },
-        { name: "왼쪽날개락", championImage: "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Yasuo.png" },
-        { name: "배탈나는 우승자", championImage: "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/LeeSin.png" },
-        { name: "PORO of LEGEND", championImage: "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Zed.png" },
-        { name: "바위번지점프", championImage: "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Jinx.png" }
-    ],
-    team2: [
-        { name: "쪽지시험", championImage: "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Ezreal.png" },
-        { name: "심리학교수김심리", championImage: "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Kaisa.png" },
-        { name: "찬스브", championImage: "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Thresh.png" },
-        { name: "renegade", championImage: "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Morgana.png" },
-        { name: "그럴만두해", championImage: "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Veigar.png" }
-    ]
+const props = defineProps({
+    matchData: Object
 });
+
 </script>
 
 <style scoped>
@@ -114,8 +82,44 @@ ul {
     margin: 0;
 }
 
-.match-card {
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes shineEffect {
+    0% {
+        background-position: -100% 0;
+        opacity: 1;
+    }
+
+    100% {
+        background-position: 100% 0;
+        /* opacity: 0; */
+    }
+}
+
+.match-card.victory {
     background-color: #0063f8;
+    color: white;
+    border-radius: 8px;
+    padding-left: 10px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.match-card.defeat {
+    background-color: red;
     color: white;
     border-radius: 8px;
     padding-left: 10px;
@@ -129,6 +133,35 @@ ul {
     align-items: center;
     background-color: #1b2a41;
     padding: 0 10px;
+}
+
+.match-info.defeat {
+    display: flex;
+    align-items: center;
+    background-color: #4F2C2F;
+    padding: 0 10px;
+}
+
+.mvp {
+    display: flex;
+    align-items: center;
+    /* padding: 0 10px; */
+    background: linear-gradient(90deg, rgb(23, 37, 74) 0%, rgb(34, 67, 102) 23%, rgb(64, 44, 141) 42%, rgb(127, 59, 151) 55%, rgb(175, 99, 70) 81%, rgb(137, 26, 57) 100%);
+    position: relative;
+    /* animation: gradientAnimation 3s infinite linear; */
+    /* animation: shiningEffect 2s infinite linear; */
+}
+
+.mvp::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(60deg, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0.6) 70%, rgba(255, 255, 255, 0) 80%);
+    background-size: 200% 100%;
+    animation: shineEffect 2s infinite linear;
 }
 
 .left {
@@ -203,14 +236,13 @@ ul {
     padding: 0;
     display: flex;
     justify-content: space-between;
-    margin: 10px auto;
+    margin: 5px auto;
     font-size: 14px;
 }
 
 .team li {
     display: flex;
     align-items: center;
-    padding: 2px 0;
     color: #B2B2C2;
     font-size: 12px;
 }

@@ -1,9 +1,9 @@
 <script setup>
 import chart from '@/components/result/tierGraph.vue'
+import { useMatchStore } from "@/stores/matchStore";
 import recordItem from './recordItem.vue';
-
 import { ref } from "vue";
-
+const matchStore = useMatchStore();
 const champions = ref([
     {
         name: "아리",
@@ -249,7 +249,7 @@ const getKdaClass = (kda) => {
                 </div>
             </div>
             <div class="match-data" style="width: 70%;">
-                <recordItem />
+                <recordItem v-for="(match, index) in matchStore.matches" :key="index" :matchData="match" class="mb-2" />
             </div>
         </div>
     </div>
