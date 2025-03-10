@@ -2,8 +2,12 @@
 import chart from '@/components/result/tierGraph.vue'
 import { useMatchStore } from "@/stores/matchStore";
 import recordItem from './recordItem.vue';
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import recordAPI from '@/api/recordAPI';
+import rankInfo from '@/components/result/rankInfo.vue';
 const matchStore = useMatchStore();
+
+
 const champions = ref([
     {
         name: "아리",
@@ -117,6 +121,122 @@ const champions = ref([
     }
 ]);
 
+const match = ref();
+
+onMounted(async () => {
+    // await setTimeout(() => {
+    //     message.value = "3초 후 변경됨!";
+    // }, 1000); // 3초 후 실행
+    // await fetchMatch();
+    await fetchSummonerRankInfo();
+})
+
+const summonors = ref("GMTQWpA1WpIXX0dy5CGzxzCUmXVJR0WHu7fG-Pd5vQOQSFW7vSbJHhwiZX2NCDul5HgAJP9eLEBPXQ");
+const teams = ref();
+const fetchMatch = async () => {
+    const response = await recordAPI.getMatchInfo("KR_7526282086");
+    console.log("response : ", response.info);
+
+    // match.value._value에서 info 추출
+    const { participants } = response.info;
+
+    // 승리팀과 패배팀으로 분리
+    teams.value = participants;
+}
+
+const soloRank = ref();
+const flexRank = ref();
+
+const fetchSummonerRankInfo = async () => {
+    const response = await recordAPI.getRankInfo("KuciYnAZF9lDUoQkP0ecCu072L15MDL4rx0YejCM64cObA");
+    // console.log("소환사 랭크 정보 : ", response);
+    soloRank.value = response.find((r) => r.queueType === "RANKED_SOLO_5x5");
+    flexRank.value = response.find((r) => r.queueType === "RANKED_FLEX_SR");
+    console.log(soloRank.value);
+    console.log(flexRank.value);
+}
+
+
+// class participant {
+//     constructor(assists,
+//         championName,
+//         deaths,
+//         goldEarned,
+//         kills,
+//         puuid,
+//         riotIdGameName,
+//         riotIdTagline,
+//         summonerLevel,
+//         summonerName,
+//         totalDamageDealt,
+//         totalDamageTaken,
+//         totalMinionsKilled,
+//         visionScore,
+//         win) {
+//             this.assists = assists
+//             this.championName = championName
+//             this.deaths = deaths
+//             this.goldEarned = goldEarned
+//             this.kills = kills
+//             this.puuid = puuid
+//             this.riotIdGameName = riotIdGameName
+//             this.riotIdTagline = riotIdTagline
+//             this.summonerLevel = summonerLevel
+//             this.summonerName = summonerName
+//             this.totalDamageDealt = totalDamageDealt
+//             this.totalDamageTaken = totalDamageTaken
+//             this.totalMinionsKilled = totalMinionsKilled
+//             this.visionScore = visionScore
+//             this.win = win
+//     }
+// }
+
+// assists
+// : 
+// 20
+// championName
+// : 
+// "Elise"
+// deaths
+// : 
+// 6
+// goldEarned
+// : 
+// 12736
+// kills
+// : 
+// 7
+// puuid
+// : 
+// "U_cGu0QvldwutUT8_XqZhJgnkZBOKZMF_ky99r7ISC1urxVWwCIn_WnyjrJTBPVsW7-hsPFUgmeNIA"
+// riotIdGameName
+// : 
+// "이름모른다 문도"
+// riotIdTagline
+// : 
+// "KR1"
+// summonerLevel
+// : 
+// 1024
+// summonerName
+// : 
+// ""
+// totalDamageDealt
+// : 
+// 75666
+// totalDamageTaken
+// : 
+// 16969
+// totalMinionsKilled
+// : 
+// 60
+// visionScore
+// : 
+// 0
+// win
+// : 
+// false
+
 const getKdaClass = (kda) => {
     if (kda >= 5) {
         return "high-kda";
@@ -136,7 +256,7 @@ const getKdaClass = (kda) => {
             <div class="row player-profile m-0">
                 <div class="col-1 avatar-box">
                     <div class="avatar">
-                        <img src="/src/assets/6760.png" alt="소환사아이콘">
+                        <img src="https://ddragon.leagueoflegends.com/cdn/15.5.1/img/profileicon/685.png" alt="소환사아이콘">
                     </div>
                 </div>
                 <div class="col-11 border border-danger">
@@ -169,30 +289,10 @@ const getKdaClass = (kda) => {
                 <!-- 랭크 티어 -->
                 <div class="rank col-4">
                     <div class="solo-rank d-flex">
-                        <div class="img-box p-4 col-3">
-                            <img src="../../assets/platinum.png" alt="">
-                        </div>
-                        <div class="rank-info col-9">
-                            <div style="color: gray; font-size: 14px; font-weight: 500;">솔로 랭크</div>
-                            <div><span style="color: #1BB5CA; font-size: 18px;" class="fw-semibold lh-1">플래티넘
-                                    1</span><span class="mx-2">7 LP</span></div>
-                            <div><span style="color: gray; font-size: 14px; font-weight: 700;">승률 45.7%</span><span
-                                    style="font-size: 12px; color: gray; font-weight: 500;" class="mx-2">(9승 11패)</span>
-                            </div>
-                        </div>
+                        <rankInfo :rank="soloRank" />
                     </div>
                     <div class="team-rank d-flex mt-3">
-                        <div class="img-box p-4 col-3">
-                            <img src="../../assets/gold.png" alt="">
-                        </div>
-                        <div class="rank-info col-9">
-                            <div style="color: gray; font-size: 14px; font-weight: 500;">솔로 랭크</div>
-                            <div><span style="color: #1BB5CA; font-size: 18px;" class="fw-semibold lh-1">골드
-                                    3</span><span class="mx-2">92 LP</span></div>
-                            <div><span style="color: gray; font-size: 14px; font-weight: 700;">승률 41.7%</span><span
-                                    style="font-size: 12px; color: gray; font-weight: 500;" class="mx-2">(5승 7패)</span>
-                            </div>
-                        </div>
+                        <rankInfo :rank="flexRank" />
                     </div>
                 </div>
                 <!-- 티어 그래프 -->
@@ -249,7 +349,8 @@ const getKdaClass = (kda) => {
                 </div>
             </div>
             <div class="match-data" style="width: 70%;">
-                <recordItem v-for="(match, index) in matchStore.matches" :key="index" :matchData="match" class="mb-2" />
+                <recordItem v-for="(match, index) in matchStore.matches" :key="index" :matchData="match"
+                    :summonors="summonors" :teams="teams" class="mb-2" />
             </div>
         </div>
     </div>
@@ -363,22 +464,8 @@ const getKdaClass = (kda) => {
     border: 1px solid #E5E7EB;
 }
 
-.img-box {
-    background-color: #FAFAFA;
-}
 
-.img-box img {
-    width: 80px;
-    height: 80px;
-}
 
-.rank-info {
-    padding-left: 30px;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
 
 .tier-graph {
     border: 1px solid #E5E7EB;

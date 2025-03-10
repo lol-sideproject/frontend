@@ -48,15 +48,17 @@
             </div>
             <div class="player-list col-4">
                 <ul class="team me-5">
-                    <li v-for="(player, index) in matchData.team1" :key="'team1' + index">
-                        <img :src="player.championImage" class="player-champion-icon" />
-                        <span>{{ player.name }}</span>
+                    <li v-for="(player, index) in winningTeam" :key="'winner' + index">
+                        <img :src="`${ChampionSquareAssets}/${player.championName}.png `"
+                            class="player-champion-icon" />
+                        <span>{{ player.riotIdGameName }}</span>
                     </li>
                 </ul>
                 <ul class="team">
-                    <li v-for="(player, index) in matchData.team2" :key="'team2' + index">
-                        <img :src="player.championImage" class="player-champion-icon" />
-                        <span>{{ player.name }}</span>
+                    <li v-for="(player, index) in losingTeam" :key="'loser' + index">
+                        <img :src="`${ChampionSquareAssets}/${player.championName}.png `"
+                            class="player-champion-icon" />
+                        <span>{{ player.riotIdGameName }}</span>
                     </li>
                 </ul>
             </div>
@@ -68,11 +70,31 @@
 </template>
 
 <script setup>
-import { defineProps } from "vue";
+import { ref, watchEffect, toRaw, defineProps, computed } from "vue";
+
+const ChampionSquareAssets = ref("https://ddragon.leagueoflegends.com/cdn/15.4.1/img/champion");
 
 const props = defineProps({
-    matchData: Object
+    matchData: Object,
+    teams: Array,
+    summonors: String,
 });
+
+const winningTeam = ref([]);
+const losingTeam = ref([]);
+
+// 데이터가 변경될 때 승리팀과 패배팀을 나누기
+watchEffect(() => {
+    if (props.teams && Array.isArray(props.teams) && props.teams.length >= 10) {
+        winningTeam.value = props.teams.slice(0, 5);
+        losingTeam.value = props.teams.slice(5, 10);
+        console.log("🏆 승리팀:", winningTeam.value);
+        console.log("💀 패배팀:", losingTeam.value);
+    } else {
+        console.log("⚠️ teams 데이터가 올바르게 전달되지 않음");
+    }
+});
+
 
 </script>
 
