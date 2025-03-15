@@ -3,11 +3,13 @@ import authRotes from "./auth";
 import boardRotes from "./board";
 import { isAuthenticated } from "@/util/guards";
 import test from '@/components/test.vue';
+import result from '@/pages/result.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {path: '/test', component: test},
+    {path: '/result', component: result},
     ...authRotes,
     ...boardRotes,
   ],
